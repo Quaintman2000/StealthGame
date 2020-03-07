@@ -7,6 +7,8 @@ public class Player : MonoBehaviour
     private Transform tf;
     public float speed;
     public float turnSpeed;
+
+    public PlayerPawn pawn;
     // Start is called before the first frame update
     void Start()
     {
@@ -30,7 +32,7 @@ public class Player : MonoBehaviour
         }
         if (Input.GetKey(KeyCode.LeftArrow))
         {
-            tf.Rotate(0, 0, turnSpeed);
+            pawn.Turn(1.0f);
         }
     }
 }
