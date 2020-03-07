@@ -16,23 +16,28 @@ public class PlayerController : Controller
     {
         if (Input.GetKey(KeyCode.UpArrow))
         {
+            //move forward
             pawn.Move(1.0f);
         }
 
         if (Input.GetKey(KeyCode.DownArrow))
         {
+            //move backward
             pawn.Move(-1.0f);
         }
 
         if (Input.GetKey(KeyCode.RightArrow))
         {
+            //turn right
             pawn.Turn(-1.0f);
         }
 
         if (Input.GetKey(KeyCode.LeftArrow))
         {
+            //turn left
             pawn.Turn(1.0f);
         }
     }
+   
 }
 

@@ -19,13 +19,14 @@ public abstract class Pawn: MonoBehaviour
         Debug.Log("Pawn Attack");
     }
 
+    //allows pawn to move forward or backward depending on direction given
     public virtual void Move(float direction)
     {
         direction *= speed;
-        tf.position += tf.right * speed * Time.deltaTime;
+        tf.position += tf.right * direction * Time.deltaTime;
     }
   
-
+    //allows pawn to turn right or left depending on direction given
     public virtual void Turn(float direction)
     {
         direction *= turnSpeed;

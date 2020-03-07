@@ -7,7 +7,7 @@ public class AIController : Controller
 {
     public float fieldOfView = 45;
     //keep track of our transform
-    private Transform tf;
+    public Transform tf;
 
     //keep track of of our target location
     public Transform target;
@@ -32,15 +32,24 @@ public class AIController : Controller
 
     //track enemy's max health
     public float maxHealth;
+
+    public float distanceTowardsPlayer;
+
+    public float angleToTarget;
     // Start is called before the first frame update
     void Start()
     {
+        tf = gameObject.GetComponent<Transform>();
         pawn = gameObject.GetComponent<EnemyPawn>();
+        AIState = "Idle";
     }
 
     // Update is called once per frame
     void Update()
     {
+        distanceTowardsPlayer = (Vector3.Distance(tf.position, target.position));
+        Vector3 vectorToTarget = target.transform.position - tf.position;
+         angleToTarget = Vector3.Angle(vectorToTarget, tf.up)+90;
         CanHear(GameManager.instance.Player);
         if (AIState == "Idle")
         {
@@ -48,7 +57,7 @@ public class AIController : Controller
             Idle();
 
             //check for transitions
-            if (IsInRange())
+            if (CanHear(GameManager.instance.Player) || CanSee(GameManager.instance.Player))
             {
                 ChangeState("Seek");
             }
@@ -73,10 +82,19 @@ public class AIController : Controller
                 ChangeState(("Rest"));
             }
 
-            if (!IsInRange())
+           //// if (Vector3.Distance(tf.position, target.position) < attackRange - 2)
+           // {
+           //     ChangeState("Attack");
+           // }
+
+            if (!CanHear(GameManager.instance.Player) || !CanSee(GameManager.instance.Player))
             {
                 ChangeState("Idle");
             }
+        }
+        else if (AIState == "Attack")
+        {
+
         }
         else
         {
@@ -99,8 +117,8 @@ public class AIController : Controller
     public void Seek()
     {
         //move toward player
-        Vector3 vectorToTarget = target.position - tf.position;
-        tf.position += vectorToTarget.normalized * speed * Time.deltaTime;
+       pawn.Move(1.0f);
+       tf.rotation = Quaternion.RotateTowards(tf.rotation,Quaternion.Euler(0,0,Mathf.Atan2(target.transform.position.y -tf.position.y,target.position.x -tf.position.x)*Mathf.Rad2Deg),pawn.turnSpeed*Time.deltaTime );
     }
 
     public void ChangeState(string newState)
@@ -133,17 +151,31 @@ public class AIController : Controller
     public bool CanSee(GameObject target)
     {
         Vector3 vectorToTarget = target.transform.position - tf.position;
+        //Vector3 rayStart = new Vector3(0,0.47f,0);
         //detect if target is inside FOV
-        float angleToTarget = Vector3.Angle(vectorToTarget, tf.up);
+         angleToTarget = Vector3.Angle(vectorToTarget, tf.right);
         if (angleToTarget <= fieldOfView)
         {
             //detect if target is in line of sight
-            RaycastHit2D hitinfo = Physics2D.Raycast(tf.position, target.transform.position - tf.position);
-            return true;
+            RaycastHit2D hitinfo = Physics2D.Raycast(tf.position/*+ rayStart*/, target.transform.position - tf.position,attackRange);
+            if (hitinfo.collider.gameObject == GameManager.instance.Player)
+            {
+                Debug.Log("I see u");
+                return true;
+            }
+            
         }
-        else
-        {
+        
             return false;
+        
+    }
+    //if the enemy runs into the player then the player loses
+    private void OnCollisionEnter2D(Collision2D otherObject)
+    {
+        if (otherObject.gameObject == GameManager.instance.Player)
+        {
+            GameManager.instance.gameState = "Game Over";
         }
     }
+
 }

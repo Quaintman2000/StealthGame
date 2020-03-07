@@ -24,7 +24,12 @@ public class PlayerPawn : Pawn
         Debug.Log("Player Attack");
        // base.Attack();
     }
-    //if we want movement for the player to be very different
-    //We can override our move function
-   
+    //if the player hits the exit game object, they win
+    private void OnCollisionEnter2D(Collision2D otherObject)
+    {
+        if (otherObject.gameObject == GameManager.instance.ExitGameObject)
+        {
+            GameManager.instance.gameState = "Game Win";
+        }
+    }
 }
